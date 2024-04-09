@@ -41,7 +41,7 @@ void printExtension(FILE *file, char *filename) {
 
 // Le a extensao salva no header
 char* readExtension(FILE *file) {
-    unsigned char curr;
+    char curr;
 
     if (!fread(&curr, sizeof(curr), 1, file)) {
         printf("Falha ao ler extensao");
@@ -50,8 +50,7 @@ char* readExtension(FILE *file) {
 
     // Move os bits para a direita, para que seu valor seja corrigido
     unsigned char extSize = curr >> 5;
-
-    char *extension;
+    char *extension = (char *)malloc(extSize + 1);;
 
     printf("Extensao: ");
     for (int i = 0; i < extSize; i++) {
@@ -63,6 +62,8 @@ char* readExtension(FILE *file) {
         extension[i] = curr;
         printf("%c", curr);
     }
+
+    extension[extSize] = '\0';
     printf(" (%i)\n", (int)extSize);
 
     return extension;
@@ -74,7 +75,7 @@ void setHeader(TreeNode *tree, FILE *output, int trash, int treeSize) {
 }
 
 void translateHuff(TreeNode *tree, FILE *input, FILE *output, int trash) {
-    char curr;
+    unsigned char curr;
     TreeNode* currTree = tree;
 
     printf("Traduzindo\n");
@@ -102,7 +103,7 @@ void translateHuff(TreeNode *tree, FILE *input, FILE *output, int trash) {
 
             // Caso o nó da árvore não tenha filhos, significa que achamos um caractere
             if (currTree -> left == NULL && currTree -> right == NULL) {
-                fprintf(output, "%c", (char)(currTree -> value));
+                fprintf(output, "%c", currTree -> value);
 
                 // Resetamos o valor da arvore para que ela volte a procurar a partir da raiz
                 currTree = tree;

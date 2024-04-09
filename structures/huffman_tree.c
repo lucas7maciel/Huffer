@@ -5,9 +5,7 @@
 #include "huffman_tree.h"
 #include  "linked_list.h"
 
-#define EMPTY_CHAR 0xFF
-
-TreeNode* createTreeNode(int value, int count) {
+TreeNode* createTreeNode(unsigned char value, int count) {
     TreeNode* node = (TreeNode *) malloc(sizeof(TreeNode));
 
     node -> value = value;
@@ -21,10 +19,10 @@ TreeNode* createTreeNode(int value, int count) {
 // Pega os 2 menores valores e transforma em um no da arvore
 TreeNode* buildTree(Node* list) {
     while (list != NULL && list -> next != NULL) {
-        TreeNode* newParent = createTreeNode((int)EMPTY_CHAR, 0);
+        TreeNode* newParent = createTreeNode('*', 0);
         int sum = 0; // A soma sera adicionada no fim da funcao
         
-        // Adiciona o menor valor ao galho da esquerda
+        // Adiciona o menor valor ao node da esquerda
         newParent -> left = list -> tree;
         sum = sum + (list -> tree -> count);
 
@@ -45,29 +43,30 @@ TreeNode* buildTree(Node* list) {
     return list -> tree;
 }
 
-void getCode(TreeNode* tree, char character, int* code, int* size, int depth, unsigned char path) {
+int isLeaf(TreeNode* node) {
+    return node -> right == NULL && node -> left == NULL;
+}
+
+void getCode(TreeNode* tree, unsigned char character, int* code, int* size, int depth, unsigned int path) {
     if (tree == NULL) return;
 
-    if ((char)(tree -> value) != character) {
+    if (tree -> value != character || !isLeaf(tree)) {
         getCode(tree -> left, character, code, size, depth + 1, path << 1);              // 0 no final para esquerda
         getCode(tree -> right, character, code, size, depth + 1, (path << 1) | 1);       // 1 no final para direita
         return;
     }
 
-    // Se o nó tem filhos, ele não tem valor
-    if (tree -> left != NULL || tree -> right != NULL) return;
-
     // Caso encontre o caracteres
     size[negToArray((int)character)] = depth;
-    //printf("%c (%i - %i): ", character, (int)character, negToArray((int)character));
+    printf("%c (%i - %i): ", character, (int)character, depth);
 
     for (int i = 0; i < depth; i++) {
         // Conferir
-        //printf("%i", (path >> depth - i - 1) & 1);
+        printf("%i", (path >> depth - i - 1) & 1);
         code[i] = (path >> depth - i - 1) & 1;
     }
 
-    //printf("\n");
+    printf("\n");
 }
 
 int getDepth(TreeNode* node) {
@@ -89,7 +88,7 @@ int countNodes(TreeNode* node) {
 int countTrash(int* frequencies, int* codesSize) {
     int originalBits = 0, compressedBits = 0;
 
-    for (int i = 0; i < 384; i++) {
+    for (int i = 0; i < 256; i++) {
         int index = negToArray(i);
 
         if (frequencies[index]) {
@@ -107,7 +106,7 @@ int countTrash(int* frequencies, int* codesSize) {
 void preOrderTree(TreeNode* node, FILE* file) {
     if (node == NULL) return;
 
-    if ((char)(node -> value) == '*' || (char)(node -> value) == '\\') {
+    if ((node -> value == '*' || node -> value == '\\') && isLeaf(node)) {
         // Printa o caractere de escape para que '*' e '\' possam ser lidos
         //printf("\\");
         fprintf(file, "\\");
@@ -115,7 +114,7 @@ void preOrderTree(TreeNode* node, FILE* file) {
 
     if (node -> left == NULL && node -> right == NULL) {
         //printf("%c", (char)(node -> value));
-        fprintf(file, "%c", (char)(node -> value));
+        fprintf(file, "%c", node -> value);
     } else if (node -> left != NULL && node -> right != NULL) {
         //printf("*");
         fprintf(file, "*");
@@ -137,7 +136,7 @@ void printTree(TreeNode *tree, int level)
         //printf("%c: %d\n", tree -> value, tree -> count);
 
         // Maneira alternativa (melhor para desenvolvimento)
-        printf("%c (%i), %i, (level %i)\n", tree -> value == 255 ? '*' : (char)(tree -> value) , tree -> value, (int)(tree -> value), level);
+        printf("%c (%i), (level %i)\n", tree -> value, (int)(tree -> value), level);
 
         printTree(tree -> left, level + 1);
         printTree(tree -> right, level + 1);
@@ -150,7 +149,7 @@ TreeNode* buildFromHeader(TreeNode* tree, int* size, FILE* file) {
     if ((*size) <= 0) return tree;
 
     // Obtem o caractere atual
-    char curr;
+    unsigned char curr;
 
     if (fread(&curr, sizeof(curr), 1, file) != 1) {
         printf("Error reading character from the tree");
@@ -172,7 +171,7 @@ TreeNode* buildFromHeader(TreeNode* tree, int* size, FILE* file) {
 
     // Se o node é vazio (*), precisa se espalhar para a esquerda e direita
     // Caso tenha um valor, apenas necessita ser armazenado em sua posição
-    tree = createTreeNode(curr == '*' && !scaped ? 0 : (int)curr, 0);
+    tree = createTreeNode(curr, 0);
 
     if (curr == '*' && !scaped) {
         tree -> left = buildFromHeader(NULL, size, file);

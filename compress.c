@@ -33,12 +33,11 @@ void compress(char *filename) {
     }
 
     // Conta a frequencia dos caracteres
-    int frequency[384] = {0};
-    char current;
-
+    int frequency[256] = {0}; // Consertar isso
+    unsigned char current;
+    
     while (fread(&current, sizeof(current), 1, input)) {
-        int index = negToArray((int)current);
-        frequency[index]++;
+        frequency[(int)current]++;
     }
 
     printf("Arquivo lido\n");
@@ -47,35 +46,28 @@ void compress(char *filename) {
     // Transforma em um lista encadeada de arvores ordenada pela frequencia da raiz
     Node *freqList = NULL;
 
-    for (int i = 0; i < 384; i++) {
-        if (frequency[i]) {
-            int index = arrayToNeg(i);
+    for (int i = 0; i < 256; i++) {
+        if (!frequency[i]) continue;
 
-            TreeNode* current = createTreeNode(index, frequency[i]);
-            sortedInsert(&freqList, current);
-        }
+        TreeNode* current = createTreeNode((unsigned char)i, frequency[i]);
+        sortedInsert(&freqList, current);
     }
 
     // Construindo arvore
     printf("Construindo Arvore\n");
     TreeNode* huffmanTree = buildTree(freqList);
-
-    // Printando arvore
-    //printf("Printando arvore\n\n");
-    //printTree(huffmanTree, 1);
-    //printf("\n");
+    printTree(huffmanTree, 0);
 
     // Cria dicionario para printar output
     // *Transformar em struct (pointer por byte)
     int treeDepth = getDepth(huffmanTree);
-    int codes[384][treeDepth];
-    int codesSize[384] = {0};
+    int codes[256][treeDepth];
+    int codesSize[256] = {0};
 
-    for (int i = 0; i < 384; i++) {
+    for (int i = 0; i < 256; i++) {
         if (!frequency[i]) continue;
 
-        int index = arrayToNeg(i);
-        getCode(huffmanTree, (char)index, codes[i], codesSize, 0, 0);
+        getCode(huffmanTree, (unsigned char)i, codes[i], codesSize, 0, 0);
     }
 
     // Definir output
@@ -98,7 +90,7 @@ void compress(char *filename) {
     // Salva as informações "traduzidas" do input no output
     printf("Escrevendo conteudo\n");
 
-    /*unsigned */char currByte = 0;
+    unsigned char currByte = 0;
     int bitIndex = 0, bitsRemaining;
 
     // Enquanto tiverem caracteres a ser escritos

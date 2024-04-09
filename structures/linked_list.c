@@ -41,7 +41,7 @@ void sortedInsert(Node **head, TreeNode *treeNode) {
 
 void printList(Node *head) {
     while (head != NULL) {
-        printf("%c: %i\n", (char)(head -> tree -> value), head -> tree -> count);
+        printf("%c: %i\n", head -> tree -> value, head -> tree -> count);
         head = head -> next;
     }
 }
