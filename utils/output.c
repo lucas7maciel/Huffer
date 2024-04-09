@@ -41,7 +41,7 @@ void printExtension(FILE *file, char *filename) {
 
 // Le a extensao salva no header
 char* readExtension(FILE *file) {
-    char curr;
+    unsigned char curr;
 
     if (!fread(&curr, sizeof(curr), 1, file)) {
         printf("Falha ao ler extensao");
@@ -52,6 +52,7 @@ char* readExtension(FILE *file) {
     unsigned char extSize = curr >> 5;
     char *extension = (char *)malloc(extSize + 1);;
 
+    printf("Extensao byte %c (%i)\n", extSize, extSize);
     printf("Extensao: ");
     for (int i = 0; i < extSize; i++) {
         if (!fread(&curr, sizeof(curr), 1, file)) {
@@ -64,7 +65,7 @@ char* readExtension(FILE *file) {
     }
 
     extension[extSize] = '\0';
-    printf(" (%i)\n", (int)extSize);
+    printf(" (%i)\n", extSize);
 
     return extension;
 }
