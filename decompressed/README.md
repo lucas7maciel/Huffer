@@ -1,3 +1,3 @@
 # Decompressed Folder
 
-Here are the uncompressed files.
+Here are the decompressed files.
