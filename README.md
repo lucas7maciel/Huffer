@@ -22,7 +22,7 @@ gcc -I./algorithm -I./algorithm/structures -I./algorithm/utils ./algorithm/main.
 ```
 
 ### Running
-To compress or deompress a file
+To compress or decompress a file, move it into /inputs and execute
 ```
 ./huff <filename>
 ```
