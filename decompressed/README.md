@@ -1,4 +1,3 @@
-# Inputs Folder
+# Decompressed Folder
 
-Add files of any type you want to compress here.
-They will be turned into .huff and stored in the _compressed_ folder.
+Here are the uncompressed files.
