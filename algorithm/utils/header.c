@@ -23,18 +23,13 @@ void preOrderTree(TreeNode* node, FILE* file) {
 
     if ((node -> value == '*' || node -> value == '\\') && isLeaf(node)) {
         // Printa o caractere de escape para que '*' e '\' possam ser lidos
-        //printf("\\");
         fprintf(file, "\\");
     }
 
     if (node -> left == NULL && node -> right == NULL) {
-        //printf("%c", (char)(node -> value));
         fprintf(file, "%c", node -> value);
     } else if (node -> left != NULL && node -> right != NULL) {
-        //printf("*");
         fprintf(file, "*");
-    } else {
-        //printf("\n*Algo de errado aconteceu na construcao da arvore\n");
     }
 
     preOrderTree(node -> left, file);
@@ -42,6 +37,8 @@ void preOrderTree(TreeNode* node, FILE* file) {
 }
 
 void setHeader(TreeNode *tree, FILE *output, int trash, int treeSize) {
+    // Printa tamanho do lixo e da árvore nos 2 primeiros bytes
     printInfos(trash, treeSize, output);
+    // Printa a árvore em pré ordem
     preOrderTree(tree, output);
 }

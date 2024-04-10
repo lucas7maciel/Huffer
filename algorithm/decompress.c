@@ -1,4 +1,3 @@
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -7,25 +6,28 @@
 
 void decompress(char* filename) {
     // Define os paths do arquivo de input e output
-    char inputPath[100], outputPath[100];
-    char *inputDir = "./compressed/";
-    char *outputDir = "./decompressed/";
+    char inputPath[strlen(filename + 13)];
+    char outputPath[strlen(filename + 21)];
     
-    sprintf(inputPath, "%s%s", inputDir, filename);
+    sprintf(inputPath, "./compressed/%s", filename);
 
-    // Remove a extensao .huff do arquivo que vai ser descompactado
-    if (strlen(outputPath) <= 5) {
-        outputPath[0] = '\0';
-    } else {
-        outputPath[strlen(outputPath) - 5] = '\0';
-    }
+    printf("Descomprimindo ");
+
+    // Formatação: Negrito, Italico e Vermelho
+    printf("\033[31m\033[3m\033[1m");
+    printf("%s", filename);
+    printf("\033[0m\033[0m\033[0m...\n\n");
 
     FILE *input = fopen(inputPath, "rb");
 
-    printf("Descomprimindo ");
-    printf("\033[31m\033[3m\033[1m%s\033[0m\033[0m\033[0m...\n\n", filename);
+    if (input == NULL) {
+        printf("Falha ao abrir arquivo, verifique se o mesmo existe\n");
+        exit(1);
+    }
 
-    // Le os 2 primeiros bytes do header (lixo e tamanho da arvore)
+    // Lê o tamanho do lixo e o tamanho da árvore
+    // *Lixo: 3 primeiros bits do primeiro byte do arquivo
+    // *Árvore: Últimos 5 bits do primeiro byte e todos do segundo
     unsigned char firstByte;
     unsigned char secondByte;
 
@@ -41,7 +43,7 @@ void decompress(char* filename) {
         exit(1);
     }
 
-    // Pega o tamanho do lixo (3 primeiros bits de firstByte)
+    // Obtém o tamanho do lixo (3 primeiros bits do firstbyte)
     unsigned int trash = 0;
 
     for (int i = 0; i < 3; i++) {
@@ -50,37 +52,44 @@ void decompress(char* filename) {
 
     trash = firstByte >> 5;
 
-    // Pega o tamanho da arvore (5 ultimos bits de firstbyte e todos de secondbyte)
+    // Obtém o tamanho da arvore (5 ultimos bits de firstByte e secondByte)
+    // Unsigned int pois o tamanho da árvore pode conter mais de 8 bits
+    // e um unsigned char pode conter apenas 8
     unsigned int treeSize = 0;
 
+    // 5 ultimos bits de firstByte
     for (int i = 3; i < 8; i++) {
         treeSize = (treeSize << 1) | ((firstByte >> (7 - i)) & 1);
     }
 
-    // Extract all 8 bits of the second byte
+    // Bits de secondByte
     for (int i = 0; i < 8; i++) {
         treeSize = (treeSize << 1) | ((secondByte >> (7 - i)) & 1);
     }
 
-    // Constrói a arvore que foi informada no header
+    // Exibe informações do header no terminal
     printf("- Arvore: \033[1m%i nodes\033[0m\n", treeSize);
     printf("- Lixo: \033[1m%i bits\033[0m\n", trash);
 
+    // Com base no tamanho da árvore, a reconstrói com os caracteres
+    // printados em pré ordem depois dos 2 primeiros bytes do header
     TreeNode* tree = buildFromHeader(NULL, &treeSize, input);
-    //printTree(tree, 1);
 
-    char *extension = readExtension(input);
-    sprintf(outputPath, "%s%s.%s", outputDir, delExtension(filename), extension);
+    // Depois de reconstruir a árvore, pegamos a extensão 
+    // e atribuímos ao filename do output
+    char *entension = readExtension(input);
+    sprintf(outputPath, "./decompressed/%s.%s", delExtension(filename), entension);
 
-    // Faz a tradução do arquivo.huff baseado na árvore criada
+    // Faz a decodificação do arquivo.huff baseado na árvore criada
     FILE *output = fopen(outputPath, "wb");
     
-    translateHuff(tree, input, output, trash);
-    
+    decodeHuff(tree, input, output, trash);
+    freeTree(tree);
+
     fclose(output);
     fclose(input);
 
-    //
-    printf("- Arquivo: \033[1m\033[32m%s.%s\033[0m\033[0m\n\n", delExtension(filename), extension);
+    // Confirma o fim do processo
+    printf("- Arquivo: \033[1m\033[32m%s.%s\033[0m\033[0m\n\n", delExtension(filename), entension);
     printf("\033[1mArquivo descomprimido com sucesso!\033[0m\n");
 }

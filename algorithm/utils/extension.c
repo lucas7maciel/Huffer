@@ -3,13 +3,14 @@
 #include <string.h>
 
 // Retorna uma string com a extensao do arquivo
-// (caso tenha mais de uma, apenas a ultimas)
+// (caso tenha mais de uma, apenas a última)
 char* getExtension(char* filename) {
     char *dot = strrchr(filename, '.');
 
     if (!dot || dot == filename) {
         return "";
     }
+
     return dot + 1;
 }
 
@@ -20,10 +21,10 @@ char* delExtension(char* filename) {
 
     if (filename == NULL) return NULL;
 
-    if ((retStr = malloc (strlen (filename) + 1)) == NULL) return NULL;
+    if ((retStr = malloc(strlen(filename) + 1)) == NULL) return NULL;
 
-    strcpy (retStr, filename);
-    lastExt = strrchr (retStr, '.');
+    strcpy(retStr, filename);
+    lastExt = strrchr(retStr, '.');
 
     if (lastExt != NULL)
         *lastExt = '\0';
@@ -31,7 +32,7 @@ char* delExtension(char* filename) {
     return retStr;
 }
 
-
+// Printa a extensão e seu tamanho no header do arquivo.huff
 void printExtension(FILE *file, char *filename) {
     char *extension = getExtension(filename);
 
@@ -39,7 +40,8 @@ void printExtension(FILE *file, char *filename) {
     unsigned char extSize = strlen(extension);
     extSize = extSize << 5;
 
-    // Printa a extensao e armazena seu byte no header do arquivo
+    // Printa o byte que conterá o tamanho da extensão
+    // em seus 3 primeiros bits
     fprintf(file, "%c", extSize);
 
     // Salva em forma de texto no arquivo
@@ -48,7 +50,7 @@ void printExtension(FILE *file, char *filename) {
     }
 }
 
-// Le a extensao salva no header
+// Lê a extensao salva no header
 char* readExtension(FILE *file) {
     unsigned char curr;
 
@@ -59,7 +61,7 @@ char* readExtension(FILE *file) {
 
     // Move os bits para a direita, para que seu valor seja corrigido
     unsigned char extSize = curr >> 5;
-    char *extension = (char *)malloc(extSize + 1);;
+    char *extension = (char*)malloc(extSize + 1);;
 
     for (int i = 0; i < extSize; i++) {
         if (!fread(&curr, sizeof(curr), 1, file)) {

@@ -17,6 +17,8 @@ TreeNode* createTreeNode(unsigned char value, int count);
 
 TreeNode* buildTree(Node* list);
 
+void freeTree(TreeNode* node);
+
 // Header related
 TreeNode* buildFromHeader(TreeNode* tree, int* size, FILE* file);
 
@@ -25,7 +27,7 @@ void preOrderTree(TreeNode* node, FILE* file);
 // Coding and decoding
 void getCode(TreeNode* tree, unsigned char character, int* code, int* size, int depth, unsigned int path);
 
-void translateHuff(TreeNode *tree, FILE *input, FILE *output, int trash);
+void decodeHuff(TreeNode *tree, FILE *input, FILE *output, int trash);
 
 // Aux functions
 int getDepth(TreeNode* node);

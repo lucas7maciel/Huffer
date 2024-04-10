@@ -16,7 +16,7 @@ TreeNode* createTreeNode(unsigned char value, int count) {
     return node;
 }
 
-// Pega os 2 menores valores e transforma em um no da arvore
+// Transforma a lista encadeada de frequências em uma Árvore de Huffman
 TreeNode* buildTree(Node* list) {
     while (list != NULL && list -> next != NULL) {
         TreeNode* newParent = createTreeNode('*', 0);
@@ -24,14 +24,14 @@ TreeNode* buildTree(Node* list) {
         
         // Adiciona o menor valor ao node da esquerda
         newParent -> left = list -> tree;
-        sum = sum + (list -> tree -> count);
+        sum += list -> tree -> count;
 
         // Se tiver um segundo menor valor (node direito)
         if (list -> next != NULL) {
             list = list -> next;
 
             newParent -> right = list -> tree;
-            sum = sum + (list -> tree -> count);
+            sum += list -> tree -> count;
         }
 
         newParent -> count = sum;
@@ -51,22 +51,17 @@ void getCode(TreeNode* tree, unsigned char character, int* code, int* size, int 
     if (tree == NULL) return;
 
     if (tree -> value != character || !isLeaf(tree)) {
-        getCode(tree -> left, character, code, size, depth + 1, path << 1);              // 0 no final para esquerda
-        getCode(tree -> right, character, code, size, depth + 1, (path << 1) | 1);       // 1 no final para direita
+        getCode(tree -> left, character, code, size, depth + 1, path << 1);          // 0 no final para esquerda
+        getCode(tree -> right, character, code, size, depth + 1, (path << 1) | 1);   // 1 no final para direita
         return;
     }
 
     // Caso encontre o caracteres
     size[(int)character] = depth;
-    //printf("%c (%i - %i): ", character, (int)character, depth);
 
     for (int i = 0; i < depth; i++) {
-        // Conferir
-        //printf("%i", (path >> depth - i - 1) & 1);
         code[i] = (path >> depth - i - 1) & 1;
     }
-
-    //printf("\n");
 }
 
 int getDepth(TreeNode* node) {
@@ -95,9 +90,6 @@ int countTrash(int* frequencies, int* codesSize) {
         }
     }
 
-    //printf("Bits originalmente: %i\n", originalBits);
-    //printf("Bits comprimidos: %i\n", compressedBits);
-
     return compressedBits % 8 == 0 ? 0 : 8 - (compressedBits % 8);
 }
 
@@ -105,20 +97,23 @@ void printTree(TreeNode *tree, int level)
 {
         if (tree == NULL) return;
 
-        //for (int i = 0; i < level; i++)
-                //printf(i == level - 1 ? "|-" : "  ");
-
-        //printf("%c: %d\n", tree -> value, tree -> count);
-
-        // Maneira alternativa (melhor para desenvolvimento)
         printf("%c (%i), (level %i)\n", tree -> value, (int)(tree -> value), level);
 
         printTree(tree -> left, level + 1);
         printTree(tree -> right, level + 1);
 }
 
-// Decompress
-// Exemplo: **CB***FEDA
+void freeTree(TreeNode* node) {
+    if (node == NULL)
+        return;
+
+    freeTree(node->left);
+    freeTree(node->right);
+
+    free(node);
+}
+
+// Reconstrói a árvore com base na string salva no header
 TreeNode* buildFromHeader(TreeNode* tree, int* size, FILE* file) {
     // Caso a quantidade de caracteres da arvore ja tenha sido percorrida
     if ((*size) <= 0) return tree;
@@ -131,11 +126,11 @@ TreeNode* buildFromHeader(TreeNode* tree, int* size, FILE* file) {
         exit(1);
     }
 
-    // Testa os scapeds (comentar melhor)
-    int scaped = 0;
+    // Verifica se um caractere de escape não está sendo printado
+    int escaped = 0;
 
     if (curr == '\\') {
-        scaped = 1;
+        escaped = 1;
 
         // Le o proximo caractere
         if (fread(&curr, sizeof(curr), 1, file) != 1) {
@@ -148,7 +143,7 @@ TreeNode* buildFromHeader(TreeNode* tree, int* size, FILE* file) {
     // Caso tenha um valor, apenas necessita ser armazenado em sua posição
     tree = createTreeNode(curr, 0);
 
-    if (curr == '*' && !scaped) {
+    if (curr == '*' && !escaped) {
         tree -> left = buildFromHeader(NULL, size, file);
         tree -> right = buildFromHeader(NULL, size, file);
     }
@@ -157,7 +152,7 @@ TreeNode* buildFromHeader(TreeNode* tree, int* size, FILE* file) {
     return tree;
 }
 
-void translateHuff(TreeNode *tree, FILE *input, FILE *output, int trash) {
+void decodeHuff(TreeNode *tree, FILE *input, FILE *output, int trash) {
     unsigned char curr;
     TreeNode* currTree = tree;
 
@@ -174,7 +169,6 @@ void translateHuff(TreeNode *tree, FILE *input, FILE *output, int trash) {
 
         for (int i = 7; i >= stop; i--) {
             int bit = (curr >> i) & 1;
-            //printf("%i", bit);
 
             if (bit == 1) {
                 currTree = currTree -> right;
@@ -190,8 +184,6 @@ void translateHuff(TreeNode *tree, FILE *input, FILE *output, int trash) {
                 currTree = tree;
             }
         }
-
-        //printf(" ");
 
         if (nextChar == EOF) break;
     }
