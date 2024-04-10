@@ -22,7 +22,7 @@ void compress(char *filename) {
     // Define os paths do input e output
     char inputPath[100], outputPath[100];
     char *inputDir = "./inputs/";
-    char *outputDir = "./outputs/";
+    char *outputDir = "./compressed/";
     
     sprintf(inputPath, "%s%s", inputDir, filename);
     sprintf(outputPath, "%s%s.huff", outputDir, delExtension(filename));
@@ -94,14 +94,13 @@ void compress(char *filename) {
     // Enquanto tiverem caracteres a ser escritos
     while (fread(&current, sizeof(current), 1, input)) {
         // Quantia de bits usados no codigo do caractere atual
-        int index = negToArray((int)current);
-        bitsRemaining = codesSize[index];
+        bitsRemaining = codesSize[(int)current];
 
         // Salva cada bit do codigo atual
         for (int i = 0; i < bitsRemaining; i++) {
             currByte = currByte << 1;
 
-            if (codes[index][i]) {
+            if (codes[(int)current][i]) {
                 currByte |= 1;
             }
 

@@ -8,9 +8,10 @@
 void decompress(char* filename) {
     // Define os paths do arquivo de input e output
     char inputPath[100], outputPath[100];
-    char *outputDir = "./outputs/";
+    char *inputDir = "./compressed/";
+    char *outputDir = "./decompressed/";
     
-    sprintf(inputPath, "%s%s", outputDir, filename);
+    sprintf(inputPath, "%s%s", inputDir, filename);
 
     // Remove a extensao .huff do arquivo que vai ser descompactado
     if (strlen(outputPath) <= 5) {

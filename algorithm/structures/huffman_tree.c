@@ -57,7 +57,7 @@ void getCode(TreeNode* tree, unsigned char character, int* code, int* size, int 
     }
 
     // Caso encontre o caracteres
-    size[negToArray((int)character)] = depth;
+    size[(int)character] = depth;
     //printf("%c (%i - %i): ", character, (int)character, depth);
 
     for (int i = 0; i < depth; i++) {
@@ -89,11 +89,9 @@ int countTrash(int* frequencies, int* codesSize) {
     int originalBits = 0, compressedBits = 0;
 
     for (int i = 0; i < 256; i++) {
-        int index = negToArray(i);
-
-        if (frequencies[index]) {
-            originalBits += frequencies[index] * 8;
-            compressedBits += frequencies[index] * codesSize[index];
+        if (frequencies[i]) {
+            originalBits += frequencies[i] * 8;
+            compressedBits += frequencies[i] * codesSize[i];
         }
     }
 
@@ -101,29 +99,6 @@ int countTrash(int* frequencies, int* codesSize) {
     //printf("Bits comprimidos: %i\n", compressedBits);
 
     return compressedBits % 8 == 0 ? 0 : 8 - (compressedBits % 8);
-}
-
-void preOrderTree(TreeNode* node, FILE* file) {
-    if (node == NULL) return;
-
-    if ((node -> value == '*' || node -> value == '\\') && isLeaf(node)) {
-        // Printa o caractere de escape para que '*' e '\' possam ser lidos
-        //printf("\\");
-        fprintf(file, "\\");
-    }
-
-    if (node -> left == NULL && node -> right == NULL) {
-        //printf("%c", (char)(node -> value));
-        fprintf(file, "%c", node -> value);
-    } else if (node -> left != NULL && node -> right != NULL) {
-        //printf("*");
-        fprintf(file, "*");
-    } else {
-        //printf("\n*Algo de errado aconteceu na construcao da arvore\n");
-    }
-
-    preOrderTree(node -> left, file);
-    preOrderTree(node -> right, file);
 }
 
 void printTree(TreeNode *tree, int level)
@@ -180,4 +155,44 @@ TreeNode* buildFromHeader(TreeNode* tree, int* size, FILE* file) {
 
     (*size)--;
     return tree;
+}
+
+void translateHuff(TreeNode *tree, FILE *input, FILE *output, int trash) {
+    unsigned char curr;
+    TreeNode* currTree = tree;
+
+    while (fread(&curr, sizeof(curr), 1, input)) { // Programar exceção de erro na leitura
+        // Le o proximo caractere para conferir se o byte será inteiramente preenchido
+        int nextChar = fgetc(input);
+        int stop = nextChar != EOF ? 0 : trash;
+
+        // Após isso, volta 1 byte no ponteiro para que não atrapalhe a leitura
+        if (fseek(input, -1, SEEK_CUR) != 0) {
+            printf("Erro ao voltar ponteiro");
+            exit(1);
+        }
+
+        for (int i = 7; i >= stop; i--) {
+            int bit = (curr >> i) & 1;
+            //printf("%i", bit);
+
+            if (bit == 1) {
+                currTree = currTree -> right;
+            } else {
+                currTree = currTree -> left;
+            }
+
+            // Caso o nó da árvore não tenha filhos, significa que achamos um caractere
+            if (currTree -> left == NULL && currTree -> right == NULL) {
+                fprintf(output, "%c", currTree -> value);
+
+                // Resetamos o valor da arvore para que ela volte a procurar a partir da raiz
+                currTree = tree;
+            }
+        }
+
+        //printf(" ");
+
+        if (nextChar == EOF) break;
+    }
 }
