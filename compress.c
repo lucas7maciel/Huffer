@@ -12,9 +12,12 @@ void compress(char *filename) {
     char *extension = getExtension(filename);
 
     if (strlen(extension) > 6) {
-        printf("A compressao de arquivos com extensao acima de 6 caracteres nao e permitida");
+        printf("A compressao de arquivos com extensao acima de 6 caracteres nao e permitida\n");
         return;
     }
+
+    printf("Comprimindo ");
+    printf("\033[31m\033[3m\033[1m%s\033[0m\033[0m\033[0m...\n\n", filename);
 
     // Define os paths do input e output
     char inputPath[100], outputPath[100];
@@ -40,7 +43,6 @@ void compress(char *filename) {
         frequency[(int)current]++;
     }
 
-    printf("Arquivo lido\n");
     fclose(input);
 
     // Transforma em um lista encadeada de arvores ordenada pela frequencia da raiz
@@ -54,9 +56,8 @@ void compress(char *filename) {
     }
 
     // Construindo arvore
-    printf("Construindo Arvore\n");
     TreeNode* huffmanTree = buildTree(freqList);
-    printTree(huffmanTree, 0);
+    //printTree(huffmanTree, 0);
 
     // Cria dicionario para printar output
     // *Transformar em struct (pointer por byte)
@@ -79,17 +80,14 @@ void compress(char *filename) {
     int treeSize = countNodes(huffmanTree);
 
     // E passa as mesmas para o header do arquivo (2 bytes iniciais)
-    printf("Setando Header\n");
     setHeader(huffmanTree, output, trash, treeSize);
     printExtension(output, filename);                   // Update: Extensão do arquivo no header
 
     // Informacoes
-    printf("- Tamanho do lixo: %i\n", countTrash(frequency, codesSize));
-    printf("- Tamanho da arvore: %i\n", countNodes(huffmanTree));
+    printf("- Arvore: \033[1m%i nodes\033[0m\n", countNodes(huffmanTree));
+    printf("- Lixo: \033[1m%i bits\033[0m\n", countTrash(frequency, codesSize));
 
     // Salva as informações "traduzidas" do input no output
-    printf("Escrevendo conteudo\n");
-
     unsigned char currByte = 0;
     int bitIndex = 0, bitsRemaining;
 
@@ -129,9 +127,9 @@ void compress(char *filename) {
     fclose(output);
 
     // Liberar memoria da lista
-    printf("Liberando memoria\n");
     freeList(freqList);
 
     //
-    printf("\nArquivo comprimido com sucesso!");
+    printf("- Arquivo: \033[1m\033[32m%s.huff\033[0m\033[0m\n\n", delExtension(filename));
+    printf("\033[1mArquivo comprimido com sucesso!\033[0m\n");
 }

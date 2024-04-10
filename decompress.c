@@ -21,6 +21,9 @@ void decompress(char* filename) {
 
     FILE *input = fopen(inputPath, "rb");
 
+    printf("Descomprimindo ");
+    printf("\033[31m\033[3m\033[1m%s\033[0m\033[0m\033[0m...\n\n", filename);
+
     // Le os 2 primeiros bytes do header (lixo e tamanho da arvore)
     unsigned char firstByte;
     unsigned char secondByte;
@@ -59,19 +62,14 @@ void decompress(char* filename) {
     }
 
     // Constrói a arvore que foi informada no header
-    printf("Reconstruindo arvore\n");
-    printf("- Tamanho da arvore: %i\n", treeSize);
-    printf("- Tamanho do lixo: %i\n", trash);
+    printf("- Arvore: \033[1m%i nodes\033[0m\n", treeSize);
+    printf("- Lixo: \033[1m%i bits\033[0m\n", trash);
 
     TreeNode* tree = buildFromHeader(NULL, &treeSize, input);
     //printTree(tree, 1);
 
     char *extension = readExtension(input);
     sprintf(outputPath, "%s%s.%s", outputDir, delExtension(filename), extension);
-
-    // Printa a arvore
-    printf("Printando\n");
-    //printTree(tree, 1);
 
     // Faz a tradução do arquivo.huff baseado na árvore criada
     FILE *output = fopen(outputPath, "wb");
@@ -81,5 +79,7 @@ void decompress(char* filename) {
     fclose(output);
     fclose(input);
 
-    printf("\nArquivo descompactado com sucesso!");
+    //
+    printf("- Arquivo: \033[1m\033[32m%s.%s\033[0m\033[0m\n\n", delExtension(filename), extension);
+    printf("\033[1mArquivo descomprimido com sucesso!\033[0m\n");
 }

@@ -58,15 +58,15 @@ void getCode(TreeNode* tree, unsigned char character, int* code, int* size, int 
 
     // Caso encontre o caracteres
     size[negToArray((int)character)] = depth;
-    printf("%c (%i - %i): ", character, (int)character, depth);
+    //printf("%c (%i - %i): ", character, (int)character, depth);
 
     for (int i = 0; i < depth; i++) {
         // Conferir
-        printf("%i", (path >> depth - i - 1) & 1);
+        //printf("%i", (path >> depth - i - 1) & 1);
         code[i] = (path >> depth - i - 1) & 1;
     }
 
-    printf("\n");
+    //printf("\n");
 }
 
 int getDepth(TreeNode* node) {

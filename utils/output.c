@@ -30,7 +30,6 @@ void printExtension(FILE *file, char *filename) {
     extSize = extSize << 5;
 
     // Printa a extensao e armazena seu byte no header do arquivo
-    printf("- Extensao: %s (%i)\n", extension, strlen(extension));
     fprintf(file, "%c", extSize);
 
     // Salva em forma de texto no arquivo
@@ -52,8 +51,6 @@ char* readExtension(FILE *file) {
     unsigned char extSize = curr >> 5;
     char *extension = (char *)malloc(extSize + 1);;
 
-    printf("Extensao byte %c (%i)\n", extSize, extSize);
-    printf("Extensao: ");
     for (int i = 0; i < extSize; i++) {
         if (!fread(&curr, sizeof(curr), 1, file)) {
             printf("Falha ao ler extensao");
@@ -61,11 +58,9 @@ char* readExtension(FILE *file) {
         }
 
         extension[i] = curr;
-        printf("%c", curr);
     }
 
     extension[extSize] = '\0';
-    printf(" (%i)\n", extSize);
 
     return extension;
 }
@@ -78,8 +73,6 @@ void setHeader(TreeNode *tree, FILE *output, int trash, int treeSize) {
 void translateHuff(TreeNode *tree, FILE *input, FILE *output, int trash) {
     unsigned char curr;
     TreeNode* currTree = tree;
-
-    printf("Traduzindo\n");
 
     while (fread(&curr, sizeof(curr), 1, input)) { // Programar exceção de erro na leitura
         // Le o proximo caractere para conferir se o byte será inteiramente preenchido
