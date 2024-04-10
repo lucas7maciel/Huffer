@@ -1,7 +1,7 @@
 CC=gcc
-CFLAGS=-I./structures -I./utils -I./
-DEPS=./structures/linked_list.h ./structures/huffman_tree.h ./utils/output.h ./utils/input.h
-OBJ=./main.o ./compress.o ./decompress.o ./structures/linked_list.o ./structures/huffman_tree.o ./utils/output.o ./utils/input.o
+CFLAGS=-I./algorithm/structures -I./algorithm/utils -I./algorithm
+DEPS=./algorithm/structures/linked_list.h ./algorithm/structures/huffman_tree.h ./algorithm/utils/extension.h ./algorithm/utils/header.h
+OBJ=./algorithm/main.o ./algorithm/compress.o ./algorithm/decompress.o ./algorithm/structures/linked_list.o ./algorithm/structures/huffman_tree.o ./algorithm/utils/extension.o ./algorithm/utils/header.o
 
 %.o: %.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)
