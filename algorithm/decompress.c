@@ -6,16 +6,17 @@
 
 void decompress(char* filename) {
     // Define os paths do arquivo de input e output
+    char *dir = isPath(filename) ? "" : "./files/";
     char inputPath[strlen(filename + 13)];
     char outputPath[strlen(filename + 21)];
     
-    sprintf(inputPath, "./compressed/%s", filename);
+    sprintf(inputPath, "%s%s", dir, filename);
 
     printf("Descomprimindo ");
 
     // Formatação: Negrito, Italico e Vermelho
     printf("\033[31m\033[3m\033[1m");
-    printf("%s", filename);
+    printf("%s", getFilename(filename));
     printf("\033[0m\033[0m\033[0m...\n\n");
 
     FILE *input = fopen(inputPath, "rb");
@@ -78,7 +79,7 @@ void decompress(char* filename) {
     // Depois de reconstruir a árvore, pegamos a extensão 
     // e atribuímos ao filename do output
     char *entension = readExtension(input);
-    sprintf(outputPath, "./decompressed/%s.%s", delExtension(filename), entension);
+    sprintf(outputPath, "%s%s.%s", dir, delExtension(filename), entension);
 
     // Faz a decodificação do arquivo.huff baseado na árvore criada
     FILE *output = fopen(outputPath, "wb");
@@ -90,6 +91,6 @@ void decompress(char* filename) {
     fclose(input);
 
     // Confirma o fim do processo
-    printf("- Arquivo: \033[1m\033[32m%s.%s\033[0m\033[0m\n\n", delExtension(filename), entension);
+    printf("- Arquivo: \033[1m\033[32m%s.%s\033[0m\033[0m\n\n", getFilename(delExtension(filename)), entension);
     printf("\033[1mArquivo descomprimido com sucesso!\033[0m\n");
 }

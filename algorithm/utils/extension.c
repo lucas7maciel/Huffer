@@ -77,3 +77,49 @@ char* readExtension(FILE *file) {
     return extension;
 }
 
+// Conferir se o filename contém o caminho do arquivo
+int isPath(const char *str) {
+    if (strchr(str, '/') != NULL || strchr(str, '\\') != NULL) {
+        return 1;
+    }
+
+    return 0;
+}
+
+char* getDir(char *str) {
+    char *last_slash = strrchr(str, '/');
+    char *last_backslash = strrchr(str, '\\');
+    char *end = NULL;
+
+    if (last_slash != NULL || last_backslash != NULL) {
+        if (last_slash != NULL && last_backslash != NULL)
+            end = (last_slash > last_backslash) ? last_slash : last_backslash;
+        else
+            end = (last_slash != NULL) ? last_slash : last_backslash;
+        
+        char *path = malloc(end - str + 2);
+        strncpy(path, str, end - str + 1);
+        path[end - str + 1] = '\0';
+        printf("Path %s\n", path);
+        return path;
+    } else {
+        return strdup("");
+    }
+}
+
+char* getFilename(const char *str) {
+    char *last_slash = strrchr(str, '/');
+    char *last_backslash = strrchr(str, '\\');
+    char *start = NULL;
+
+    if (last_slash != NULL || last_backslash != NULL) {
+        if (last_slash != NULL && last_backslash != NULL)
+            start = (last_slash > last_backslash) ? last_slash + 1 : last_backslash + 1;
+        else
+            start = (last_slash != NULL) ? last_slash + 1 : last_backslash + 1;
+        
+        return strdup(start);
+    } else {
+        return strdup(str);
+    }
+}

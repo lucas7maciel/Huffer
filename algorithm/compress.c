@@ -19,15 +19,16 @@ void compress(char *filename) {
 
     // Formatação: Negrito, Italico e Vermelho
     printf("\033[31m\033[3m\033[1m");
-    printf("%s", filename);
+    printf("%s", getFilename(filename));
     printf("\033[0m\033[0m\033[0m...\n\n");
 
     // Define os paths do input e output
+    char *dir = isPath(filename) ? "" : "./files/";
     char inputPath[strlen(filename) + 14];
     char outputPath[strlen(filename) + 18];
-    
-    sprintf(inputPath, "./inputs/%s", filename);
-    sprintf(outputPath, "./compressed/%s.huff", delExtension(filename));
+
+    sprintf(inputPath, "%s%s", dir, filename);
+    sprintf(outputPath, "%s%s.huff", dir, delExtension(filename));
 
     FILE *input = fopen(inputPath, "rb");
 
@@ -129,6 +130,6 @@ void compress(char *filename) {
     fclose(output);
     
     // Confirma o fim do processo
-    printf("- Arquivo: \033[1m\033[32m%s.huff\033[0m\033[0m\n\n", delExtension(filename));
+    printf("- Arquivo: \033[1m\033[32m%s.huff\033[0m\033[0m\n\n", getFilename(delExtension(filename)));
     printf("\033[1mArquivo comprimido com sucesso!\033[0m\n");
 }

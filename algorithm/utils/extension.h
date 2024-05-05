@@ -9,4 +9,11 @@ void printExtension(FILE *file, char *filename);
 
 char* readExtension(FILE *file);
 
+int isPath(const char *str);
+
+char* getDir(const char *str);
+
+char* getFilename(char *str);
+
+
 #endif
