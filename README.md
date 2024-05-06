@@ -16,9 +16,9 @@ At the root of the project, run the _Makefile_ (Only once);
 make
 ```
 
-If your OS does not support Makefile, you can copy and paste this line into the terminal
+If your OS does not support Makefile, you can copy and paste this line into CMD
 ```
-gcc -I./algorithm -I./algorithm/structures -I./algorithm/utils ./algorithm/main.c ./algorithm/compress.c ./algorithm/decompress.c ./algorithm/structures/huffman_tree.c ./algorithm/structures/linked_list.c ./algorithm/utils/extension.c ./algorithm/utils/header.c -o huff
+gcc -I./algorithm -I./algorithm/structures -I./algorithm/utils ./algorithm/main.c ./algorithm/compress.c ./algorithm/decompress.c ./algorithm/structures/huffman_tree.c ./algorithm/structures/linked_list.c ./algorithm/utils/extension.c ./algorithm/utils/header.c ./algorithm/utils/make_reg.c -o huff && huff __build-reg
 ```
 
 ### Running
