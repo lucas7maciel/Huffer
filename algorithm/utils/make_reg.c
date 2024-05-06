@@ -37,7 +37,7 @@ void createFile() {
         }
     }
 
-    fprintf(file, "\\\\huff.exe\\\" \\\"%%1\\\"\"");
+    fprintf(file, "\\\\huff\\\" \\\"%%1\\\"\"");
     fclose(file);
 }
 
