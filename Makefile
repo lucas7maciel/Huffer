@@ -1,18 +1,29 @@
 CC=gcc
 CFLAGS=-I./algorithm/structures -I./algorithm/utils -I./algorithm
-DEPS=./algorithm/structures/linked_list.h ./algorithm/structures/huffman_tree.h ./algorithm/utils/extension.h ./algorithm/utils/header.h ./algorithm/utils/make_reg.h
-OBJ=./algorithm/main.o ./algorithm/compress.o ./algorithm/decompress.o ./algorithm/structures/linked_list.o ./algorithm/structures/huffman_tree.o ./algorithm/utils/extension.o ./algorithm/utils/header.o ./algorithm/utils/make_reg.o
+DEPS=./algorithm/structures/linked_list.h \
+     ./algorithm/structures/huffman_tree.h \
+     ./algorithm/utils/extension.h \
+     ./algorithm/utils/header.h \
+     ./algorithm/utils/make_reg.h
+OBJ=./algorithm/main.o \
+    ./algorithm/compress.o \
+    ./algorithm/decompress.o \
+    ./algorithm/structures/linked_list.o \
+    ./algorithm/structures/huffman_tree.o \
+    ./algorithm/utils/extension.o \
+    ./algorithm/utils/header.o \
+    ./algorithm/utils/make_reg.o
 
 %.o: %.c $(DEPS)
-	$(CC) -c -o $@ $< $(CFLAGS)
+    $(CC) -c -o $@ $< $(CFLAGS)
 
 huff: $(OBJ)
-	$(CC) -o $@ $^ $(CFLAGS)
+    $(CC) -o $@ $^ $(CFLAGS)
+
+.PHONY: run
+run: huff
+    ./huff __build-reg
 
 .PHONY: clean
-
-run: huff
-	./huff __build-reg
-
 clean:
-	rm -f $(OBJ) huff
+    rm -f $(OBJ) huff
