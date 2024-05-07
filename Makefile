@@ -15,15 +15,15 @@ OBJ=./algorithm/main.o \
     ./algorithm/utils/make_reg.o
 
 %.o: %.c $(DEPS)
-    $(CC) -c -o $@ $< $(CFLAGS)
+	$(CC) -c -o $@ $< $(CFLAGS)
 
 huff: $(OBJ)
-    $(CC) -o $@ $^ $(CFLAGS)
+	$(CC) -o $@ $^ $(CFLAGS)
 
 .PHONY: run
 run: huff
-    ./huff __build-reg
+	./huff __build-reg
 
 .PHONY: clean
 clean:
-    rm -f $(OBJ) huff
+	rm -f $(OBJ) huff
